@@ -1,1 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TAREAS LPA - Dashboard</title>
+
+  <!-- Ícono y estilos -->
+  <link rel="icon" href="assets/favicon.ico" />
+  <link rel="stylesheet" href="assets/styles.css" />
+
+  <!-- Librería para los gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <!-- ENCABEZADO -->
+  <header class="dashboard-header">
+    <img src="assets/logo.png" alt="Logo LPA" class="header-logo" />
+    <h1 class="header-title">TAREAS LPA</h1>
+    <div class="user-info">
+      <span id="userName"></span>
+      <button id="logoutBtn">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="dashboard-main">
+
+    <!-- SECCIÓN DE RESUMEN Y PROGRESO -->
+    <section class="dashboard-summary">
+      <canvas id="progressChart" width="150" height="150"></canvas>
+      <div id="summaryStats"></div>
+    </section>
+
+    <!-- CREAR NUEVA TAREA -->
+    <section id="crearTareaSection" class="crear-tarea">
+      <h2>📋 Crear nueva tarea</h2>
+      <form id="crearTareaForm">
+        <input type="text" id="titulo" placeholder="Título" required />
+        <textarea id="descripcion" placeholder="Descripción" required></textarea>
+        <select id="asignado"></select>
+        <input type="date" id="fecha_limite" required />
+        <button type="submit">Crear tarea</button>
+      </form>
+    </section>
+
+    <!-- TAREAS PENDIENTES DE APROBACIÓN (solo super_admin) -->
+    <section id="pendientesAprobacion" class="tareas-section">
+      <h2>🔴 Tareas pendientes de aprobación</h2>
+      <div id="listaPendientesAprobacion"></div>
+    </section>
+
+    <!-- MIS TAREAS ACTIVAS -->
+    <section id="tareasActivas" class="tareas-section">
+      <h2>🟠 Mis tareas activas</h2>
+      <div id="listaTareasActivas"></div>
+    </section>
+
+    <!-- TAREAS QUE ASIGNÉ A OTROS -->
+    <section id="tareasEnviadas" class="tareas-section">
+      <h2>🟡 Tareas asignadas por mí</h2>
+      <div id="listaTareasEnviadas"></div>
+    </section>
+
+    <!-- TAREAS EN ESPERA DE MI APROBACIÓN DE CIERRE -->
+    <section id="tareasPorConfirmar" class="tareas-section">
+      <h2>🟢 Tareas en espera de mi aprobación de cierre</h2>
+      <div id="listaTareasPorConfirmar"></div>
+    </section>
+
+    <!-- TAREAS FINALIZADAS (APROBADAS) -->
+    <section id="tareasFinalizadas" class="tareas-section">
+      <h2>⚪ Tareas finalizadas (aprobadas)</h2>
+      <div id="listaTareasFinalizadas"></div>
+    </section>
+
+    <!-- GESTIÓN DE USUARIOS (solo super_admin) -->
+    <section id="gestionUsuarios" class="tareas-section">
+      <h2>👤 Gestión de Usuarios (solo Super Admin)</h2>
+
+      <form id="formNuevoUsuario" class="form-usuarios">
+        <input type="text" id="nuevoNombre" placeholder="Nombre completo" required />
+        <input type="text" id="nuevoUsuario" placeholder="Usuario" required />
+        <input type="password" id="nuevoPassword" placeholder="Contraseña" required />
+        <select id="nuevoRol" required>
+          <option value="">Seleccionar rol</option>
+          <option value="super_admin">Super Admin</option>
+          <option value="admin">Admin</option>
+          <option value="usuario">Usuario</option>
+        </select>
+        <button type="submit">Agregar Usuario</button>
+      </form>
+
+      <div id="listaUsuarios"></div>
+    </section>
+  </main>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
 
