@@ -14,6 +14,13 @@
 </head>
 
 <body>
+
+  <!-- SPLASH SCREEN DEL DASHBOARD -->
+  <div id="splash-dashboard">
+    <img src="assets/icon.png" alt="Logo LPA" class="splash-logo" />
+    <h2 class="splash-text">Cargando tus tareas...</h2>
+  </div>
+
   <!-- ENCABEZADO -->
   <header class="dashboard-header">
     <img src="assets/logo.png" alt="Logo LPA" class="header-logo" />
@@ -96,7 +103,42 @@
     </section>
   </main>
 
+  <!-- Script principal del dashboard -->
   <script src="js/dashboard.js"></script>
+
+  <!-- Splash Screen control -->
+  <script>
+    // Mostrar splash de carga al entrar al dashboard
+    window.addEventListener("load", () => {
+      const splash = document.getElementById("splash-dashboard");
+      setTimeout(() => {
+        splash.classList.add("fade-out");
+        setTimeout(() => splash.remove(), 600);
+      }, 1300); // 1.3 segundos
+    });
+  </script>
+
+  <!-- Auto logout (15 minutos de inactividad) -->
+  <script>
+    const INACTIVIDAD_MAXIMA = 15 * 60 * 1000; // 15 minutos
+    let temporizadorInactividad;
+
+    function resetearTemporizador() {
+      clearTimeout(temporizadorInactividad);
+      temporizadorInactividad = setTimeout(() => {
+        localStorage.removeItem("usuario");
+        alert("Sesión cerrada por inactividad.");
+        window.location.href = "index.html";
+      }, INACTIVIDAD_MAXIMA);
+    }
+
+    ["mousemove", "keydown", "click", "scroll", "touchstart"].forEach((evento) => {
+      document.addEventListener(evento, resetearTemporizador);
+    });
+
+    resetearTemporizador();
+  </script>
+
 </body>
 </html>
 
