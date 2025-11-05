@@ -18,6 +18,14 @@
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body>
+
+  <!-- SPLASH SCREEN -->
+  <div id="splash-screen">
+    <img src="assets/icon.png" alt="Logo LPA" class="splash-logo" />
+    <h2 class="splash-text">TAREAS LPA</h2>
+  </div>
+
+  <!-- LOGIN -->
   <div class="login-container">
     <div class="login-card">
       <img src="assets/icon.png" alt="Logo LPA" class="login-logo" />
@@ -38,7 +46,7 @@
   <!-- Script principal de login -->
   <script src="script.js"></script>
 
-  <!-- Registro del Service Worker para PWA -->
+  <!-- Registrar el Service Worker -->
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
@@ -48,8 +56,41 @@
           .catch((err) => console.log("❌ Error al registrar el Service Worker:", err));
       });
     }
+
+    // SPLASH SCREEN - Desvanece después de 1.8s
+    window.addEventListener("load", () => {
+      const splash = document.getElementById("splash-screen");
+      setTimeout(() => {
+        splash.classList.add("fade-out");
+        setTimeout(() => splash.remove(), 600);
+      }, 1800);
+    });
+
+    // =========================================================
+    // ⏰ AUTO LOGOUT DESPUÉS DE 15 MINUTOS SIN ACTIVIDAD
+    // =========================================================
+    const INACTIVIDAD_MAXIMA = 15 * 60 * 1000; // 15 minutos
+    let temporizadorInactividad;
+
+    function resetearTemporizador() {
+      clearTimeout(temporizadorInactividad);
+      temporizadorInactividad = setTimeout(() => {
+        localStorage.removeItem("usuario");
+        alert("Sesión cerrada por inactividad.");
+        window.location.href = "index.html";
+      }, INACTIVIDAD_MAXIMA);
+    }
+
+    // Detectar actividad del usuario
+    ["mousemove", "keydown", "click", "scroll", "touchstart"].forEach((evento) => {
+      document.addEventListener(evento, resetearTemporizador);
+    });
+
+    resetearTemporizador(); // activar al inicio
   </script>
+
 </body>
 </html>
+
 
 
