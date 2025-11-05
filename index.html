@@ -3,16 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TAREAS LPA</title>
-  <link rel="icon" href="assets/favicon.ico" />
+  <title>TAREAS LPA - Iniciar sesión</title>
+
+  <!-- Colores institucionales -->
+  <meta name="theme-color" content="#C4332A" />
+
+  <!-- Manifest para instalación PWA -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Favicon e ícono -->
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+
+  <!-- Estilos -->
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body>
   <div class="login-container">
     <div class="login-card">
-      <img src="assets/logo.png" alt="Logo LPA" class="login-logo" />
+      <img src="assets/icon.png" alt="Logo LPA" class="login-logo" />
+
       <h1 class="login-title">TAREAS LPA</h1>
-      <p class="login-subtitle">Iniciá sesión para continuar</p>
+      <p class="login-subtitle">Inicia sesión para continuar</p>
 
       <form id="loginForm">
         <input type="text" id="username" placeholder="Usuario" required />
@@ -23,7 +34,22 @@
       <p id="loginMessage" class="login-message"></p>
     </div>
   </div>
-  <script src="js/script.js"></script>
+
+  <!-- Script principal de login -->
+  <script src="script.js"></script>
+
+  <!-- Registro del Service Worker para PWA -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("service-worker.js")
+          .then((reg) => console.log("✅ Service Worker registrado con éxito:", reg.scope))
+          .catch((err) => console.log("❌ Error al registrar el Service Worker:", err));
+      });
+    }
+  </script>
 </body>
 </html>
+
 
