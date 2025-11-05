@@ -448,3 +448,79 @@ function eliminarUsuario(usuario) {
     alert("Usuario eliminado correctamente.");
   }
 }
+
+/* =========================================================
+   EXPORTAR REPORTE DE TAREAS (CSV / EXCEL)
+   ========================================================= */
+
+function exportarTareasCSV() {
+  const tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+
+  if (tareas.length === 0) {
+    alert("No hay tareas registradas para exportar.");
+    return;
+  }
+
+  // Armar encabezado y filas
+  const encabezados = [
+    "ID",
+    "Título",
+    "Descripción",
+    "Asignado a",
+    "Creado por",
+    "Fecha límite",
+    "Estado",
+    "Aprobado"
+  ];
+
+  const filas = tareas.map(t => [
+    t.id,
+    `"${t.titulo}"`,
+    `"${t.descripcion}"`,
+    t.asignado,
+    t.creado_por,
+    t.fecha_limite,
+    t.estado,
+    t.aprobado ? "Sí" : "No"
+  ]);
+
+  const csvContenido = [
+    encabezados.join(","),
+    ...filas.map(f => f.join(","))
+  ].join("\n");
+
+  // Crear blob y descargar
+  const blob = new Blob([csvContenido], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+
+  // Nombre del archivo (ejemplo: tareas_LPA_2025-11-04.csv)
+  const fecha = new Date().toISOString().split("T")[0];
+  link.download = `tareas_LPA_${fecha}.csv`;
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// =========================================================
+// Insertar botón en el dashboard (solo super_admin y admin)
+// =========================================================
+document.addEventListener("DOMContentLoaded", () => {
+  if (usuarioActual.rol === "super_admin" || usuarioActual.rol === "admin") {
+    const btnExportar = document.createElement("button");
+    btnExportar.textContent = "📤 Exportar Reporte (.CSV)";
+    btnExportar.style.backgroundColor = "#c4332a";
+    btnExportar.style.color = "white";
+    btnExportar.style.padding = "10px 16px";
+    btnExportar.style.border = "none";
+    btnExportar.style.borderRadius = "10px";
+    btnExportar.style.cursor = "pointer";
+    btnExportar.style.marginBottom = "1rem";
+    btnExportar.onclick = exportarTareasCSV;
+
+    const header = document.querySelector(".dashboard-header");
+    header.appendChild(btnExportar);
+  }
+});
