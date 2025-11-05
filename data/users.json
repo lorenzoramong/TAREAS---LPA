@@ -1,1 +1,21 @@
+[
+  {
+    "usuario": "lorram",
+    "contraseña": "4238",
+    "rol": "super_admin",
+    "nombre": "Lorenzo Ramón"
+  },
+  {
+    "usuario": "gmen",
+    "contraseña": "1209",
+    "rol": "super_admin",
+    "nombre": "Guillermo Mendoza"
+  },
+  {
+    "usuario": "nmolina",
+    "contraseña": "2378",
+    "rol": "usuario",
+    "nombre": "Nicolle Molina"
+  }
+]
 
