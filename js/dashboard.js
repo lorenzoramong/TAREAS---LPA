@@ -524,3 +524,102 @@ document.addEventListener("DOMContentLoaded", () => {
     header.appendChild(btnExportar);
   }
 });
+
+/* =========================================================
+   NOTIFICACIONES AUTOMÁTICAS (locales)
+   ========================================================= */
+
+// Pedir permiso para notificaciones del navegador
+if ("Notification" in window && Notification.permission !== "granted") {
+  Notification.requestPermission();
+}
+
+// =========================================================
+// Función para verificar tareas próximas a vencer
+// =========================================================
+function verificarTareasProximas() {
+  const tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+  const hoy = new Date();
+
+  tareas.forEach((t) => {
+    if (t.asignado === usuarioActual.usuario && t.estado === "Pendiente" && t.aprobado) {
+      const fechaLimite = new Date(t.fecha_limite);
+      const diffDias = Math.ceil((fechaLimite - hoy) / (1000 * 60 * 60 * 24));
+
+      if (diffDias === 2) {
+        mostrarNotificacion(
+          `⏰ Recordatorio: "${t.titulo}" vence en 2 días.`,
+          "No olvides completarla antes del plazo límite."
+        );
+      } else if (diffDias === 1) {
+        mostrarNotificacion(
+          `⚠️ Último día para "${t.titulo}"`,
+          "Hoy es el último día para completar esta tarea."
+        );
+      } else if (diffDias === 0) {
+        mostrarNotificacion(
+          `❌ Tarea vencida: "${t.titulo}"`,
+          "Esta tarea ya llegó a su fecha límite."
+        );
+      }
+    }
+  });
+}
+
+// =========================================================
+// Mostrar notificación visual + en el sistema
+// =========================================================
+function mostrarNotificacion(titulo, mensaje) {
+  // Notificación nativa (si el usuario la permite)
+  if ("Notification" in window && Notification.permission === "granted") {
+    new Notification(titulo, {
+      body: mensaje,
+      icon: "assets/icon.png",
+    });
+  }
+
+  // Notificación visual dentro de la app
+  const aviso = document.createElement("div");
+  aviso.classList.add("notificacion");
+  aviso.innerHTML = `
+    <strong>${titulo}</strong><br>
+    <small>${mensaje}</small>
+  `;
+  document.body.appendChild(aviso);
+
+  setTimeout(() => aviso.remove(), 6000);
+}
+
+// =========================================================
+// Estilo visual para alertas dentro de la app
+// =========================================================
+const estiloNotificaciones = document.createElement("style");
+estiloNotificaciones.textContent = `
+.notificacion {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #c4332a;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 9999;
+  font-size: 0.9rem;
+  animation: aparecer 0.4s ease-out;
+}
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+`;
+document.head.appendChild(estiloNotificaciones);
+
+// =========================================================
+// Ejecutar verificación automática al cargar
+// =========================================================
+document.addEventListener("DOMContentLoaded", () => {
+  verificarTareasProximas();
+  // Verificar cada 3 horas mientras la app esté abierta
+  setInterval(verificarTareasProximas, 3 * 60 * 60 * 1000);
+});
