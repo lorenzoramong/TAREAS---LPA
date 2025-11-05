@@ -129,3 +129,227 @@ actualizarGrafico();
 // =========================================================
 console.log(`Bienvenido ${usuarioActual.nombre} (${usuarioActual.rol}) — Sesión activa en TAREAS LPA.`);
 
+/* =========================================================
+   GESTIÓN DE TAREAS
+   ========================================================= */
+
+const tareasContainerActivas = document.getElementById("listaTareasActivas");
+const tareasContainerEnviadas = document.getElementById("listaTareasEnviadas");
+const tareasContainerPorConfirmar = document.getElementById("listaTareasPorConfirmar");
+const tareasContainerFinalizadas = document.getElementById("listaTareasFinalizadas");
+const tareasContainerPendientesAprobacion = document.getElementById("listaPendientesAprobacion");
+
+// Cargar todas las tareas del almacenamiento
+function obtenerTareas() {
+  return JSON.parse(localStorage.getItem("tareas")) || [];
+}
+
+// Guardar tareas en almacenamiento
+function guardarTareas(tareas) {
+  localStorage.setItem("tareas", JSON.stringify(tareas));
+}
+
+// =========================================================
+// CREAR NUEVA TAREA
+// =========================================================
+const formCrearTarea = document.getElementById("crearTareaForm");
+formCrearTarea.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const titulo = document.getElementById("titulo").value.trim();
+  const descripcion = document.getElementById("descripcion").value.trim();
+  const asignado = document.getElementById("asignado").value;
+  const fecha = document.getElementById("fecha_limite").value;
+
+  if (!titulo || !descripcion || !asignado || !fecha) {
+    alert("Por favor completa todos los campos.");
+    return;
+  }
+
+  const tareas = obtenerTareas();
+
+  const nuevaTarea = {
+    id: Date.now(),
+    titulo,
+    descripcion,
+    asignado,
+    fecha_limite: fecha,
+    creado_por: usuarioActual.usuario,
+    estado: "Pendiente",
+    aprobado: usuarioActual.rol === "usuario" ? false : true,
+  };
+
+  // Si la crea un usuario, queda pendiente de aprobación
+  if (usuarioActual.rol === "usuario") {
+    nuevaTarea.estado = "Pendiente de aprobación";
+    nuevaTarea.aprobado = false;
+  }
+
+  tareas.push(nuevaTarea);
+  guardarTareas(tareas);
+  formCrearTarea.reset();
+  actualizarListas();
+  alert("Tarea creada correctamente.");
+});
+
+// =========================================================
+// MOSTRAR LISTAS DE TAREAS SEGÚN ESTADO Y ROL
+// =========================================================
+function actualizarListas() {
+  const tareas = obtenerTareas();
+
+  // Limpiar contenido anterior
+  tareasContainerActivas.innerHTML = "";
+  tareasContainerEnviadas.innerHTML = "";
+  tareasContainerPorConfirmar.innerHTML = "";
+  tareasContainerFinalizadas.innerHTML = "";
+  tareasContainerPendientesAprobacion.innerHTML = "";
+
+  tareas.forEach((t) => {
+    // =========== Pendientes de aprobación (solo super_admin) ===========
+    if (!t.aprobado && usuarioActual.rol === "super_admin" && t.estado === "Pendiente de aprobación") {
+      const card = crearCardTarea(t, ["aprobarCreacion", "rechazarCreacion"]);
+      tareasContainerPendientesAprobacion.appendChild(card);
+    }
+
+    // =========== Mis tareas activas ===========
+    if (t.asignado === usuarioActual.usuario && t.estado === "Pendiente" && t.aprobado) {
+      const card = crearCardTarea(t, ["finalizar"]);
+      tareasContainerActivas.appendChild(card);
+    }
+
+    // =========== Tareas asignadas por mí ===========
+    if (t.creado_por === usuarioActual.usuario) {
+      const card = crearCardTarea(t, []);
+      tareasContainerEnviadas.appendChild(card);
+    }
+
+    // =========== Tareas por confirmar (cuando otro la marcó finalizada) ===========
+    if (t.creado_por === usuarioActual.usuario && t.estado === "Finalizada (por confirmar)") {
+      const card = crearCardTarea(t, ["aprobarCierre", "rechazarCierre"]);
+      tareasContainerPorConfirmar.appendChild(card);
+    }
+
+    // =========== Tareas finalizadas (aprobadas) ===========
+    if (t.estado === "Finalizada (aprobada)" && (t.creado_por === usuarioActual.usuario || t.asignado === usuarioActual.usuario)) {
+      const card = crearCardTarea(t, []);
+      tareasContainerFinalizadas.appendChild(card);
+    }
+  });
+
+  actualizarGrafico();
+}
+
+// =========================================================
+// CREAR TARJETA VISUAL DE CADA TAREA
+// =========================================================
+function crearCardTarea(tarea, acciones = []) {
+  const div = document.createElement("div");
+  div.classList.add("tarea-item");
+
+  div.innerHTML = `
+    <h4>${tarea.titulo}</h4>
+    <p>${tarea.descripcion}</p>
+    <small><strong>Asignado a:</strong> ${tarea.asignado}</small><br>
+    <small><strong>Creado por:</strong> ${tarea.creado_por}</small><br>
+    <small><strong>Fecha límite:</strong> ${tarea.fecha_limite}</small><br>
+    <small><strong>Estado:</strong> ${tarea.estado}</small>
+  `;
+
+  acciones.forEach((accion) => {
+    const btn = document.createElement("button");
+    switch (accion) {
+      case "aprobarCreacion":
+        btn.textContent = "Aprobar tarea";
+        btn.classList.add("aprobar");
+        btn.onclick = () => aprobarCreacion(tarea.id);
+        break;
+      case "rechazarCreacion":
+        btn.textContent = "Rechazar";
+        btn.classList.add("rechazar");
+        btn.onclick = () => rechazarCreacion(tarea.id);
+        break;
+      case "finalizar":
+        btn.textContent = "Marcar como Finalizada";
+        btn.classList.add("finalizar");
+        btn.onclick = () => marcarFinalizada(tarea.id);
+        break;
+      case "aprobarCierre":
+        btn.textContent = "Aprobar cierre";
+        btn.classList.add("aprobar");
+        btn.onclick = () => aprobarCierre(tarea.id);
+        break;
+      case "rechazarCierre":
+        btn.textContent = "Rechazar cierre";
+        btn.classList.add("rechazar");
+        btn.onclick = () => rechazarCierre(tarea.id);
+        break;
+    }
+    div.appendChild(btn);
+  });
+
+  return div;
+}
+
+// =========================================================
+// FUNCIONES DE ACCIÓN SOBRE TAREAS
+// =========================================================
+
+// Aprobación de creación (solo super_admin)
+function aprobarCreacion(id) {
+  const tareas = obtenerTareas();
+  const tarea = tareas.find(t => t.id === id);
+  if (tarea) {
+    tarea.aprobado = true;
+    tarea.estado = "Pendiente";
+    guardarTareas(tareas);
+    actualizarListas();
+    alert("Tarea aprobada y activada.");
+  }
+}
+
+// Rechazar creación
+function rechazarCreacion(id) {
+  const tareas = obtenerTareas().filter(t => t.id !== id);
+  guardarTareas(tareas);
+  actualizarListas();
+  alert("Tarea rechazada y eliminada.");
+}
+
+// Marcar como finalizada (por confirmar)
+function marcarFinalizada(id) {
+  const tareas = obtenerTareas();
+  const tarea = tareas.find(t => t.id === id);
+  if (tarea) {
+    tarea.estado = "Finalizada (por confirmar)";
+    guardarTareas(tareas);
+    actualizarListas();
+  }
+}
+
+// Aprobar cierre (solo el creador)
+function aprobarCierre(id) {
+  const tareas = obtenerTareas();
+  const tarea = tareas.find(t => t.id === id);
+  if (tarea && tarea.creado_por === usuarioActual.usuario) {
+    tarea.estado = "Finalizada (aprobada)";
+    guardarTareas(tareas);
+    actualizarListas();
+  }
+}
+
+// Rechazar cierre (solo el creador)
+function rechazarCierre(id) {
+  const tareas = obtenerTareas();
+  const tarea = tareas.find(t => t.id === id);
+  if (tarea && tarea.creado_por === usuarioActual.usuario) {
+    tarea.estado = "Pendiente";
+    guardarTareas(tareas);
+    actualizarListas();
+  }
+}
+
+// =========================================================
+// CARGAR TODO AL INICIAR
+// =========================================================
+document.addEventListener("DOMContentLoaded", actualizarListas);
