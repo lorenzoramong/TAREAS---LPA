@@ -1,11 +1,17 @@
+/* =========================================================
+   ESTILOS GENERALES
+   ========================================================= */
 body {
   margin: 0;
   padding: 0;
   font-family: 'Poppins', sans-serif;
-  background-color: #f3ebdd;
+  background-color: #f3ebdd; /* beige institucional */
   color: #333;
 }
 
+/* =========================================================
+   LOGIN PAGE
+   ========================================================= */
 .login-container {
   display: flex;
   justify-content: center;
@@ -44,6 +50,7 @@ input {
   margin-bottom: 1rem;
   border: 1px solid #ddd;
   border-radius: 8px;
+  font-size: 0.9rem;
 }
 
 button {
@@ -55,6 +62,7 @@ button {
   border-radius: 10px;
   cursor: pointer;
   font-weight: bold;
+  transition: 0.3s ease;
 }
 
 button:hover {
@@ -65,4 +73,219 @@ button:hover {
   margin-top: 1rem;
   font-size: 0.9rem;
 }
+
+/* =========================================================
+   DASHBOARD - ENCABEZADO
+   ========================================================= */
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1.5rem;
+  background-color: #c4332a;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-logo {
+  width: 50px;
+}
+
+.header-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-info span {
+  font-weight: bold;
+}
+
+/* =========================================================
+   DASHBOARD - ESTRUCTURA PRINCIPAL
+   ========================================================= */
+.dashboard-main {
+  padding: 1.5rem;
+  background-color: #f3ebdd;
+  min-height: 100vh;
+}
+
+.crear-tarea, 
+.tareas-section {
+  background: white;
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.crear-tarea h2, 
+.tareas-section h2 {
+  color: #c4332a;
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+}
+
+/* =========================================================
+   FORMULARIOS Y CAMPOS
+   ========================================================= */
+textarea {
+  width: 100%;
+  height: 80px;
+  resize: none;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+select, 
+input[type="date"] {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+/* =========================================================
+   BOTONES DE ACCIÓN
+   ========================================================= */
+button.aprobar, 
+button.rechazar, 
+button.finalizar, 
+button.eliminar {
+  margin-top: 5px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+button.aprobar { background-color: #28a745; }   /* verde */
+button.rechazar { background-color: #dc3545; }  /* rojo */
+button.finalizar { background-color: #c4332a; } /* rojo institucional */
+button.eliminar { background-color: #6c757d; }  /* gris */
+
+/* =========================================================
+   SECCIONES DE TAREAS
+   ========================================================= */
+.tarea-item {
+  display: flex;
+  flex-direction: column;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+}
+
+.tarea-item h4 {
+  margin: 0;
+  color: #c4332a;
+}
+
+.tarea-item p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.tarea-item small {
+  color: #777;
+  font-size: 0.8rem;
+}
+
+/* =========================================================
+   GESTIÓN DE USUARIOS (solo super_admin)
+   ========================================================= */
+#gestionUsuarios {
+  background-color: white;
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+}
+
+#gestionUsuarios h2 {
+  color: #c4332a;
+  margin-bottom: 1rem;
+}
+
+.form-usuarios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+#listaUsuarios {
+  margin-top: 1rem;
+  border-top: 1px solid #ddd;
+  padding-top: 1rem;
+}
+
+.usuario-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
+
+.usuario-item span {
+  font-weight: 500;
+}
+
+/* =========================================================
+   PIE CHART Y ESTADÍSTICAS
+   ========================================================= */
+.dashboard-summary {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+#summaryStats {
+  font-size: 1rem;
+  color: #444;
+}
+
+/* =========================================================
+   RESPONSIVE DESIGN
+   ========================================================= */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .dashboard-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .crear-tarea, 
+  .tareas-section {
+    padding: 0.8rem;
+  }
+}
+
 
