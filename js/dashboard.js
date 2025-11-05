@@ -353,3 +353,98 @@ function rechazarCierre(id) {
 // CARGAR TODO AL INICIAR
 // =========================================================
 document.addEventListener("DOMContentLoaded", actualizarListas);
+
+/* =========================================================
+   GESTIÓN DE USUARIOS (solo visible para super_admin)
+   ========================================================= */
+
+// Referencias a elementos
+const formNuevoUsuario = document.getElementById("formNuevoUsuario");
+const listaUsuariosDiv = document.getElementById("listaUsuarios");
+
+// Cargar usuarios del almacenamiento
+function obtenerUsuarios() {
+  return JSON.parse(localStorage.getItem("usuarios")) || [];
+}
+
+// Guardar usuarios
+function guardarUsuarios(usuarios) {
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+}
+
+// =========================================================
+// Mostrar lista de usuarios en el panel
+// =========================================================
+function actualizarListaUsuarios() {
+  if (usuarioActual.rol !== "super_admin") return; // Solo super_admin ve esta sección
+
+  const usuarios = obtenerUsuarios();
+  listaUsuariosDiv.innerHTML = "";
+
+  usuarios.forEach((u) => {
+    const div = document.createElement("div");
+    div.classList.add("usuario-item");
+    div.innerHTML = `
+      <span>${u.nombre} — <strong>${u.rol.toUpperCase()}</strong></span>
+      <button class="eliminar" onclick="eliminarUsuario('${u.usuario}')">Eliminar</button>
+    `;
+    listaUsuariosDiv.appendChild(div);
+  });
+}
+
+actualizarListaUsuarios();
+
+// =========================================================
+// Crear nuevo usuario
+// =========================================================
+if (formNuevoUsuario) {
+  formNuevoUsuario.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const nombre = document.getElementById("nuevoNombre").value.trim();
+    const usuario = document.getElementById("nuevoUsuario").value.trim();
+    const password = document.getElementById("nuevoPassword").value.trim();
+    const rol = document.getElementById("nuevoRol").value;
+
+    if (!nombre || !usuario || !password || !rol) {
+      alert("Por favor completa todos los campos.");
+      return;
+    }
+
+    let usuarios = obtenerUsuarios();
+
+    // Verificar que no exista el mismo usuario
+    if (usuarios.some((u) => u.usuario === usuario)) {
+      alert("Ya existe un usuario con ese nombre de usuario.");
+      return;
+    }
+
+    const nuevoUsuario = { nombre, usuario, contraseña: password, rol };
+    usuarios.push(nuevoUsuario);
+    guardarUsuarios(usuarios);
+
+    formNuevoUsuario.reset();
+    actualizarListaUsuarios();
+    cargarOpcionesUsuarios(); // Actualizar selector "Asignar a"
+    alert("Usuario agregado correctamente.");
+  });
+}
+
+// =========================================================
+// Eliminar usuario
+// =========================================================
+function eliminarUsuario(usuario) {
+  if (usuarioActual.rol !== "super_admin") {
+    alert("No tienes permisos para eliminar usuarios.");
+    return;
+  }
+
+  if (confirm("¿Seguro que deseas eliminar este usuario?")) {
+    let usuarios = obtenerUsuarios();
+    usuarios = usuarios.filter((u) => u.usuario !== usuario);
+    guardarUsuarios(usuarios);
+    actualizarListaUsuarios();
+    cargarOpcionesUsuarios();
+    alert("Usuario eliminado correctamente.");
+  }
+}
